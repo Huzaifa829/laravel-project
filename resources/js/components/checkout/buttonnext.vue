@@ -1,5 +1,5 @@
 <template>
-  <button @click="showStepTwo2()" class="btn-form-submint" type="button">Continue to Payment</button>
+  <button class="btn-form-submint" type="button">Continue to Payment</button>
 </template>
 <script>
 
@@ -7,12 +7,12 @@
 
 export default {
 
-  methods: {
-    showStepTwo2() {
-      this.$emit("showsteptwo2");
+  // methods: {
+  //   showStepTwo2() {
+  //     this.$emit("showsteptwo2");
 
-    },
-  },
+  //   },
+  // },
 };
 
 

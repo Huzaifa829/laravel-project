@@ -34,7 +34,8 @@
         <link rel="stylesheet" href="{{ URL::asset('assets/vendor/photoswipe/default-skin/default-skin.css') }}"/>
         <link rel="stylesheet" href="{{ URL::asset('assets/vendor/select2/css/select2.min.css') }}" />
         <link rel="stylesheet" href="{{ URL::asset('layerslider/css/layerslider.css') }}" type="text/css">
-        <script src="{{ URL::asset('layerslider/js/jquery.js') }}" type="text/javascript"></script>
+        {{-- <script src="{{ URL::asset('layerslider/js/jquery.js') }}" type="text/javascript"></script> --}}
+        <script src="https://code.jquery.com/jquery-3.6.3.js"></script>
         <script src="{{ URL::asset('layerslider/js/layerslider.utils.js') }}" type="text/javascript"></script>
         <script src="{{ URL::asset('layerslider/js/layerslider.transitions.js') }}" type="text/javascript"></script>
         <script src="{{ URL::asset('layerslider/js/layerslider.kreaturamedia.jquery.js') }}" type="text/javascript"></script>

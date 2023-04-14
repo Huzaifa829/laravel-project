@@ -13,11 +13,15 @@ class DHLController extends Controller
 {
     public function getSingleProductRate(Request $request)
     {
+
+        // dd(env('DHL_ACCOUNT_NUMBER'));
+
         if($request->length > 0 && $request->width > 0 && $request->height > 0 && $request->weight){
 
             $ip = $request->ip();
             $data = \Location::get($ip);
             $today = new Carbon();
+            
 
             if($today->dayOfWeek == Carbon::SATURDAY){
                 $shippingDate = date('Y-m-d', strtotime(' +2 day'));
@@ -33,6 +37,7 @@ class DHLController extends Controller
 
         }else{
 
+            
 
         }
 

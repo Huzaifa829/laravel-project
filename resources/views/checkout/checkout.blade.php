@@ -11,20 +11,10 @@
 </style>
 @endsection
 @section('content')
-
-
-
-
-
-
-
-<div class="block checkout" id="talha-bag-color">
-
-
-    <!-- <hr> -->
+<div class="block checkout" id="main-bg-color">
+    <!-- <hr>
     <hr>
-    <!-- <hr> -->
-
+    <hr> -->
     <div class="container container--max--xl">
         <div class="row">
             @if (!auth()->user())
@@ -34,16 +24,13 @@
                 </div>
             </div>
             @endif
-
-
             <form action="{{route('cart.checkoutpayment')}}" method="POST" id="checkoutform" autocomplete="off">
                 @csrf
                 <div class="row">
                     <div class="col-12 col-lg-6 col-xl-8">
+                        <shippinginfo></shippinginfo>
                         <div class="card mb-lg-0">
                             <div v-show="ShowFormOne" @click="showStepOne()" id="ShowFormOne_id" class="card-body card-body--padding--2">
-
-
                                 <h3 class="card-title">Billing details</h3>
                                 <div class="form-colum">
                                     @if (auth()->user()->firstname)
@@ -79,7 +66,7 @@
                                 <div class="form-group col-md-7 d-flex">
                                     <label class="name-text-frst" for="checkout-country">Country</label>
                                     <select id="checkout-country" class="form-control form-control-select2" name="country" required>
-                                        <option>Select a country...</option>
+                                        <option>Select a country</option>
                                         @foreach ($collectioncountries as $country)
                                         <option value="{{$country->id}}" {{ (old("country") == $country->id ? "selected":"") }}>{{$country->name}}</option>
                                         @endforeach
@@ -107,37 +94,38 @@
                                     <label class="name-text-frst" for="checkout-postcode">Postcode / ZIP</label>
                                     <input type="text" class="form-control" name="postalcode" value="{{ old('postalcode') }}" id="postcode" required>
                                 </div>
-                                <div class="form-row">
-                                    @if (auth()->user()->email)
-                                    <div class="form-group col-md-7 d-flex">
-                                        <label class="name-text-frst" for="checkout-email">Email address</label>
-                                        <input type="email" class="form-control" name="email" value="{{ auth()->user()->email }}" id="email" placeholder="Email address" required>
-                                    </div>
-                                    @else
-                                    <div class="form-group col-md-7 d-flex">
-                                        <label class="name-text-frst" for="checkout-email">Email address</label>
-                                        <input type="email" class="form-control" name="email" value="{{ old('email') }}" id="email" placeholder="Email address" required>
-                                    </div>
-                                    @endif
-
-                                    <div class="form-group col-md-7 d-flex">
-                                        <label class="name-text-frst" for="checkout-phone">Phone</label>
-                                        <input id="phone" type="tel" name="phone" value="{{ old('phone') }}" class="form-control" required />
-                                    </div>
-                                    <div class="btn-form-main-div">
-                                        <!-- Form button go to set two -->
-                                        <buttonnext onclick="hello()"></buttonnext>
-                                    </div>
+                                <!-- <div class="form-row"> -->
+                                @if (auth()->user()->email)
+                                <div class="form-group col-md-7 d-flex">
+                                    <label class="name-text-frst" for="checkout-email">Email address</label>
+                                    <input type="email" class="form-control" name="email" value="{{ auth()->user()->email }}" id="email" placeholder="Email address" required>
                                 </div>
+                                @else
+                                <div class="form-group col-md-7 d-flex">
+                                    <label class="name-text-frst" for="checkout-email">Email address</label>
+                                    <input type="email" class="form-control" name="email" value="{{ old('email') }}" id="email" placeholder="Email address" required>
+                                </div>
+                                @endif
+
+                                <div class="form-group col-md-7 d-flex">
+                                    <label class="name-text-frst" for="checkout-phone">Phone</label>
+                                    <input id="phone" type="tel" name="phone" value="{{ old('phone') }}" class="form-control" required />
+                                </div>
+                                <div class="btn-form-main-div">
+                                    <!-- Form button go to set two -->
+                                    <buttonnext onclick="hello()"></buttonnext>
+                                </div>
+                                <!-- </div> -->
                             </div>
+                            <!-- ASDKFLKASDFLASD -->
                             <div class="card-divider"></div>
-                            <div v-show="ShowFormTwo" @click="showStepTwo()" id="ShowFormTwo_id" class="card-body card-body--padding--2" style="visibility: none;">
+                            <div v-show="ShowFormTwo" @click="showStepTwo()" id="ShowFormTwo_id" class="card-body card-body--padding--2">
                                 <h3 class="card-title">Payment Information</h3>
                                 <div class="p-4 mt-4 mb-0 border shadow-none card">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <label for="card-ownername" class="form-label">Card Name</label>
-                                            <input type="text" class="form-control" id="billing-cardname" name="cardname" placeholder="Card Name" requireds>
+                                            <input type="text" class="form-control" id="billing-cardname nko" name="cardname" placeholder="Card Name" requireds>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -147,7 +135,7 @@
                                                 <div class="icon-container">
                                                     <img id="icon-card-number" src="{{ URL::asset('payment/images/card-icons/card.svg')}}" alt="PAN" />
                                                 </div>
-                                                <div class="card-number-frame"></div>
+                                                <div id="get-class-ha1" class="card-number-frame"></div>
                                                 <div class="icon-container payment-method">
                                                     <img id="logo-payment-method" />
                                                 </div>
@@ -163,7 +151,7 @@
                                                 <div class="icon-container">
                                                     <img id="icon-expiry-date" src="{{URL::asset('payment/images/card-icons/exp-date.svg')}}" alt="Expiry date" />
                                                 </div>
-                                                <div class="expiry-date-frame"></div>
+                                                <div id="get-class-ha2" class="expiry-date-frame"></div>
                                                 <div class="icon-container">
                                                     <img id="icon-expiry-date-error" src="{{URL::asset('payment/images/card-icons/error.svg')}}" />
                                                 </div>
@@ -176,7 +164,7 @@
                                                 <div class="icon-container">
                                                     <img id="icon-cvv" src="{{URL::asset('payment/images/card-icons/cvv.svg')}}" alt="CVV" />
                                                 </div>
-                                                <div class="cvv-frame"></div>
+                                                <div id="get-class-ha3" class="cvv-frame"></div>
                                                 <div class="icon-container">
                                                     <img id="icon-cvv-error" src="{{URL::asset('payment/images/card-icons/error.svg')}}" />
                                                 </div>
@@ -188,8 +176,49 @@
                                 <div class="mt-2 text-muted fst-italic">
                                     <i data-feather="lock" class="text-muted icon-xs"></i> Your transaction is secured with SSL encryption
                                 </div>
+                                <div class="btn-form-main-div">
+                                    <!-- Form button go to set two -->
+                                    <button type="button" class="ha-payment_btn" onclick="ha_payment_method()">Continue Next Page</button>
+                                </div>
                             </div>
-                            <All_data v-show="ShowFormThree" @click="showStepThree()"></All_data>
+                            <div v-show="ShowFormThree" id="thrid-part-ha" class="ship-double-main">
+                                <!-- <div > -->
+                                <div class="ship-main-part">
+                                    <div class="ship-detail-head">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="31" height="31" fill="#232323" class="bi bi-truck icon-setting" viewBox="0 0 16 16">
+                                            <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+                                        </svg>
+                                        <p class="ship-detail-head-text">Ship To</p>
+                                    </div>
+                                    <div class="ship-detail-add-div">
+                                        <div class="ship-name-head">
+                                            <p id="ship-frist-name" class="ship-name-text">Huzaifa Ahmed</p>
+                                            <button class="ship-change-button">Change</button>
+                                        </div>
+                                        <p id="ship-Street-Adress" class="ship-address">Street Address</p>
+                                        <p id="ship-Adress" class="ship-address">Address</p>
+                                        <p id="ship-areaPostAll">Karachi,State,postcode,country</p>
+                                    </div>
+                                </div>
+                                <div class="ship-main-part">
+                                    <div class="ship-detail-head">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="31" height="31" fill="#232323" class="bi bi-credit-card-2-back-fill icon-setting" viewBox="0 0 16 16">
+                                            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5H0V4zm11.5 1a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5h-2zM0 11v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1H0z" />
+                                        </svg>
+                                        <p class="ship-detail-head-text">Payment</p>
+                                    </div>
+                                    <div class="ship-detail-add-div">
+                                        <div class="ship-name-head">
+                                            <p class="ship-name-text">*****4242 Exp:06/27</p>
+                                            <button class="ship-change-button">Change</button>
+                                        </div>
+                                        <p id="shpping-full-detail" class="ship-address">Billing Address:huzaifaAhmed,Fulladress</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- </div> -->
+                            <!-- <All_data id="thrid-part-ha" 
+                             @click="showStepThree()"></All_data> -->
                         </div>
                     </div>
                     <div class="mt-4 col-12 col-lg-6 col-xl-4 mt-lg-0">
@@ -197,14 +226,14 @@
                             <div class="card-body card-body--padding--2">
                                 <h3 class="card-title">Your Order</h3>
                                 <table class="checkout__totals">
-                                    <thead class="checkout__totals-header">
+                                    <thead class="checkout__totals-header ha-display-none">
                                         <tr>
                                             <th style="width: 90px;">Image</th>
                                             <th>Product</th>
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="checkout__totals-products">
+                                    <tbody class="checkout__totals-products ha-display-none">
                                         @foreach (Cart::content() as $item)
                                         <input type="hidden" id="weight[]" name="weight[]" value="{{$item->model->weight}}">
                                         <input type="hidden" id="length[]" name="length[]" value="{{$item->model->length}}">
@@ -275,15 +304,10 @@
                 </div>
             </form>
         </div>
-
     </div>
-
-
-
-    <hr>
+    <!-- <hr> -->
 </div>
 @if(Route::current()->getName() == 'cart.checkoutorder')
-
 @else
 <div class="block-space block-space--layout--before-footer"></div>
 @endif
@@ -291,11 +315,55 @@
 @section('scripts')
 <script src="https://cdn.checkout.com/js/framesv2.min.js"></script>
 <script src="{{ URL::asset('payment/app.js')}}"></script>
-
 <script>
+    Show_summary = () => {
+        var x = JSON.parse(localStorage.getItem('AllData'));
+        frstName = $(this).attr("ship-frist-name");
+        StreetAddress = $(this).attr("ship-Street-Adress");
+        Address = $(this).attr("ship-Adress");
+        FullAddress = $(this).attr("ship-areaPostAll");
+        Fulldetail = $(this).attr("shpping-full-detail");
+        frstName.innerHTML = `${x.frstName} ${x.lastName}`
+        StreetAddress.innerHTML = x.streetAddress
+        Address.innerHTML = x.address
+        FullAddress.innerHTML = `${x.city},${x.state},${x.postcode},${x.countryName}`
+        Fulldetail.innerHTML = `Billing Address:${x.frstName} ${x.lastName},${x.city},${x.state},${x.postcode},${x.countryName},${x.phone}`
+        console.log('summary run', x)
+    }
+    Show_summary()
+
+    // payment method btn function 
+    ha_payment_method = () => {
+        var checkClass1 = document.getElementById('get-class-ha1')
+        var checkClass2 = document.getElementById('get-class-ha2')
+        var checkClass3 = document.getElementById('get-class-ha3')
+        var partTwo = document.getElementById('ShowFormTwo_id')
+        var partThird = document.getElementById('thrid-part-ha')
+        var heloo3 = document.getElementById("abc3");
+        var heloo2 = document.getElementById("abc2");
+        var heloo = document.getElementById("abc");
+
+        if (checkClass1.className == "card-number-frame frame--activated frame--valid" && checkClass2.className == "expiry-date-frame frame--activated frame--valid" && checkClass3.className == "cvv-frame frame--activated frame--valid") {
+            console.log("true")
+            partTwo.style.display = "none"
+            partThird.style.display = "flex"
+            heloo3.classList.add("mainbtn");
+            heloo3.classList.remove("main-btn-1");
+
+            heloo2.classList.add("main-btn-1");
+            heloo2.classList.remove("mainbtn");
+
+            heloo.classList.add("main-btn-1");
+            heloo.classList.remove("mainbtn");
+
+        } else {
+            console.log('false')
+        }
+
+    }
     hello = () => {
-        var partOne=document.getElementById('ShowFormOne_id')
-        var partTwo=document.getElementById('ShowFormTwo_id')
+        var partOne = document.getElementById('ShowFormOne_id')
+        var partTwo = document.getElementById('ShowFormTwo_id')
         var frstName = document.getElementById('first-name')
         var lastName = document.getElementById('last-name')
         var companyName = document.getElementById('company-name')
@@ -306,36 +374,94 @@
         var state = document.getElementById('state')
         var postcode = document.getElementById('postcode')
         var email = document.getElementById('email')
+        var show = false
         var phone = document.getElementById('phone')
+        var heloo3 = document.getElementById("abc3");
+        var heloo2 = document.getElementById("abc2");
+        var heloo = document.getElementById("abc");
+        // var checking=document.getElementById('abc3')
 
-        
-        
+        //data all get form input feild
+
         var allData = {
-            frsitName: frstName.value,
-            lastName: lastName.value,
-            companyName: companyName.value,
-            countryName: countryName.options[countryName.selectedIndex].text,
-            streetAddress: streetAddress.value,
-            address: address.value,
-            city: city.value,
-            state: state.value,
-            postcode: postcode.value,
-            email: email.value,
-            phone: phone.value
+            frstName: frstName,
+            lastName: lastName,
+            companyName: companyName,
+            countryName: countryName,
+            streetAddress: streetAddress,
+            address: address,
+            city: city,
+            state: state,
+            postcode: postcode,
+            email: email,
+            phone: phone
         }
-        this.ShowFormOne=false
-        partOne.style.display="none"
-        partTwo.style.display="block"
-        console.log(partOne, 'alldata')
-        localStorage.setItem('AllData', JSON.stringify(allData));
-        // alert(0)
+
+        //its an empty aray for logic of false array push
+
+        var aray = []
+
+        function part1(a) {
+            a.style.border = '1px solid red';
+            aray.push(show = false)
+
+        }
+
+        function part2(a) {
+            a.style.border = ' 1px solid #ebebeb'
+            show = true
+        }
+
+
+        (allData.frstName.value == '.') ? part1(allData.frstName): part2(allData.frstName),
+            (allData.lastName.value == '') ? part1(allData.lastName) : part2(allData.lastName),
+            (allData.companyName.value == '') ? part1(allData.companyName) : part2(allData.companyName),
+            (allData.countryName.options[countryName.selectedIndex].text == 'Select a country') ? part1(allData.countryName) : part2(allData.countryName),
+            (allData.streetAddress.value == '') ? part1(allData.streetAddress) : part2(allData.streetAddress),
+            (allData.address.value == '') ? part1(allData.address) : part2(allData.address),
+            (allData.city.value == '') ? part1(allData.city) : part2(allData.city),
+            (allData.state.value == '') ? part1(allData.state) : part2(allData.state),
+            (allData.postcode.value == '') ? part1(allData.postcode) : part2(allData.postcode),
+            (allData.email.value == '') ? part1(allData.email) : part2(allData.email),
+            (allData.phone.value == '') ? part1(allData.phone) : part2(allData.phone)
+
+        //data is save in local storage ===>
+
+        if (aray.length == 0) {
+            var all_Data_local = {
+                frstName: frstName.value,
+                lastName: lastName.value,
+                companyName: companyName.value,
+                countryName: countryName.options[countryName.selectedIndex].text,
+                streetAddress: streetAddress.value,
+                address: address.value,
+                city: city.value,
+                state: state.value,
+                postcode: postcode.value,
+                email: email.value,
+                phone: phone.value
+            }
+            partTwo.style.display = "block"
+            partOne.style.display = "none"
+            localStorage.setItem('AllData', JSON.stringify(all_Data_local));
+            heloo3.classList.add("main-btn-1");
+            heloo3.classList.remove("mainbtn");
+
+            heloo2.classList.add("mainbtn");
+            heloo2.classList.remove("main-btn-1");
+
+            heloo.classList.add("main-btn-1");
+            heloo.classList.remove("mainbtn");
+            Show_summary()
+        }
+
+
+
+
+
     }
-    //     showStepTwo=()=> {
-        //   console.log('12345')
-        //   this.showSteptwo()
-        // s
-    // }
-    
+
+
     const phoneInputField = document.querySelector("#phone");
     const phoneInput = window.intlTelInput(phoneInputField, {
         utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
@@ -343,11 +469,14 @@
     });
 </script>
 <style>
-    #talha-bag-color {
-        background-color: #e7e7e7;
+    .ha-display-none {
+        display: none;
+        border: none;
     }
 
-
+    #main-bg-color {
+        background-color: #e7e7e7;
+    }
 
     .btn-form-main-div {
         display: flex;
@@ -359,14 +488,30 @@
 
     .name-text-frst {
         display: flex;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
-        width: 150px;
+        width: 165px;
         font-size: 14px;
         margin: 0;
+    }
 
+    .ha-payment_btn {
+        width: 40%;
+        height: 100%;
+        background-color: #f2aa4cff;
+        border: none;
+        border-radius: 5px;
+        font-family: sans-serif;
+        font-weight: 600;
+        color: white;
+        /* font-size: x-large; */
+    }
+
+    @media only screen and (max-width: 500px) {
+        .ha-payment_btn {
+            width: 70%;
+
+        }
     }
 </style>
-
-
 @endsection

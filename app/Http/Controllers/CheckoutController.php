@@ -36,6 +36,9 @@ class CheckoutController extends Controller
 {
     public function checkoutorder(Request $request)
     {
+
+        // dd(env('DHL_ACCOUNT_NUMBER'));
+
         if(!Cart::content()->isEmpty()){
             $collectioncountries = UserCountry::get();
             $useraddress = UserAddress::where([['userid',Auth()->user()->id]])->get();

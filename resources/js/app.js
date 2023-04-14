@@ -40,6 +40,7 @@ import { createApp } from 'vue'
 import checkoutheader from './components/checkout/checkoutheader.vue'
 import checkout_footer from './components/checkout/checkout_footer.vue'
 import buttonnext from './components/checkout/buttonnext.vue'
+import shippinginfo from './components/checkout/shippinginfo.vue'
 import All_data from './components/checkout/Alldetail.vue'
 import { data } from 'autoprefixer';
 import { transform } from 'lodash';
@@ -52,6 +53,7 @@ const app = createApp({
         checkout_footer,
         buttonnext,
         All_data,
+        shippinginfo,
 
     },
     data() {

@@ -39,16 +39,9 @@
 </template>
 
 <script>
-// import stepone from "./stepone.vue";
-// import steptwo from "./steptwo.vue";
-// import stepthree from "./stepthree.vue";
+
 export default {
-  // props: ["image"],
-  // components: {
-  //   stepone,
-  //   steptwo,
-  //   stepthree,
-  // },
+ 
 
   data() {
     return {
@@ -74,7 +67,6 @@ export default {
       heloo.classList.remove("main-btn-1");
     },
     showStepTwo() {
-      console.log("jani function chal raha h koi or msla h")
       this.$emit("showsteptwo");
         var heloo3 = document.getElementById("abc3");
         heloo3.classList.add("main-btn-1");
