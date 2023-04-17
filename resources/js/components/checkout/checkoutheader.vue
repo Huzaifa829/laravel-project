@@ -39,10 +39,7 @@
 </template>
 
 <script>
-
 export default {
- 
-
   data() {
     return {
       showFormOne: true,
@@ -52,7 +49,6 @@ export default {
   },
   methods: {
     showStepOne() {
-      
       this.$emit("showstepone");
       var heloo3 = document.getElementById("abc3");
       heloo3.classList.add("main-btn-1");
@@ -65,23 +61,44 @@ export default {
       var heloo = document.getElementById("abc");
       heloo.classList.add("mainbtn");
       heloo.classList.remove("main-btn-1");
+      var btn2check = document.getElementById("thrid-part-ha");
+      btn2check.style.display = "none";
+      var all_shiping_detail = document.getElementById(
+        "all-shiping-amout-detail"
+      );
+      all_shiping_detail.style.display = "none";
+      var payment_show = document.getElementById("ShowFormOne_id");
+      payment_show.style.display= "block";
+      var payment_show2 = document.getElementById("ShowFormTwo_id");
+      payment_show2.style.display= "none";
+      window.scrollTo(0, 0);
+
     },
     showStepTwo() {
       this.$emit("showsteptwo");
-        var heloo3 = document.getElementById("abc3");
-        heloo3.classList.add("main-btn-1");
-        heloo3.classList.remove("mainbtn");
+      window.scrollTo(0, 0);
 
-        var heloo2 = document.getElementById("abc2");
-        heloo2.classList.add("mainbtn");
-        heloo2.classList.remove("main-btn-1");
+      var heloo3 = document.getElementById("abc3");
+      heloo3.classList.add("main-btn-1");
+      heloo3.classList.remove("mainbtn");
 
-        var heloo = document.getElementById("abc");
-        heloo.classList.add("main-btn-1");
-        heloo.classList.remove("mainbtn");
-        
+      var heloo2 = document.getElementById("abc2");
+      heloo2.classList.add("mainbtn");
+      heloo2.classList.remove("main-btn-1");
+
+      var heloo = document.getElementById("abc");
+      heloo.classList.add("main-btn-1");
+      heloo.classList.remove("mainbtn");
+      var btn2check = document.getElementById("thrid-part-ha");
+      btn2check.style.display = "none";
+      var all_shiping_detail = document.getElementById(
+        "all-shiping-amout-detail"
+      );
+      all_shiping_detail.style.display = "flex";
     },
     showStepThree() {
+      window.scrollTo(0, 0);
+
       this.$emit("showstepthree");
       var heloo3 = document.getElementById("abc3");
       heloo3.classList.add("mainbtn");
@@ -94,6 +111,12 @@ export default {
       var heloo = document.getElementById("abc");
       heloo.classList.add("main-btn-1");
       heloo.classList.remove("mainbtn");
+      var all_shiping_detail = document.getElementById(
+        "all-shiping-amout-detail"
+      );
+      all_shiping_detail.style.display = "flex";
+      var arrangement=document.getElementById('thrid-part-ha')
+      arrangement.style.order='-1'
     },
   },
 };

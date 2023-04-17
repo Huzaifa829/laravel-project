@@ -33642,9 +33642,19 @@ __webpack_require__.r(__webpack_exports__);
       var heloo = document.getElementById("abc");
       heloo.classList.add("mainbtn");
       heloo.classList.remove("main-btn-1");
+      var btn2check = document.getElementById("thrid-part-ha");
+      btn2check.style.display = "none";
+      var all_shiping_detail = document.getElementById("all-shiping-amout-detail");
+      all_shiping_detail.style.display = "none";
+      var payment_show = document.getElementById("ShowFormOne_id");
+      payment_show.style.display = "block";
+      var payment_show2 = document.getElementById("ShowFormTwo_id");
+      payment_show2.style.display = "none";
+      window.scrollTo(0, 0);
     },
     showStepTwo: function showStepTwo() {
       this.$emit("showsteptwo");
+      window.scrollTo(0, 0);
       var heloo3 = document.getElementById("abc3");
       heloo3.classList.add("main-btn-1");
       heloo3.classList.remove("mainbtn");
@@ -33654,8 +33664,13 @@ __webpack_require__.r(__webpack_exports__);
       var heloo = document.getElementById("abc");
       heloo.classList.add("main-btn-1");
       heloo.classList.remove("mainbtn");
+      var btn2check = document.getElementById("thrid-part-ha");
+      btn2check.style.display = "none";
+      var all_shiping_detail = document.getElementById("all-shiping-amout-detail");
+      all_shiping_detail.style.display = "flex";
     },
     showStepThree: function showStepThree() {
+      window.scrollTo(0, 0);
       this.$emit("showstepthree");
       var heloo3 = document.getElementById("abc3");
       heloo3.classList.add("mainbtn");
@@ -33666,6 +33681,10 @@ __webpack_require__.r(__webpack_exports__);
       var heloo = document.getElementById("abc");
       heloo.classList.add("main-btn-1");
       heloo.classList.remove("mainbtn");
+      var all_shiping_detail = document.getElementById("all-shiping-amout-detail");
+      all_shiping_detail.style.display = "flex";
+      var arrangement = document.getElementById('thrid-part-ha');
+      arrangement.style.order = '-1';
     }
   }
 });
@@ -33837,15 +33856,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "render": () => (/* binding */ render)
 /* harmony export */ });
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm-bundler.js");
-
-var _hoisted_1 = {
-  "class": "hello-world"
-};
-var _hoisted_2 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<div class=\"card-body mz-here card-body--padding--2\" style=\"display:none;\"><h3 class=\"card-title\">Shipping Information</h3><div class=\"mt-4 mb-4 mz_shipping\"><div class=\"form-group\"><input type=\"radio\" name=\"shipping_options\" checked> Express Domestic 12:00 </div><div class=\"form-group\"><input type=\"radio\" name=\"shipping_options\"> Express Domestic </div><div class=\"form-group\"><input type=\"radio\" name=\"shipping_options\"> Express Easy Doc </div><div class=\"form-group\"><input type=\"radio\" name=\"shipping_options\"> Citylane </div></div><div class=\"p-4 mt-4 mb-0 border shadow-none card\" style=\"flex-direction:row;justify-content:space-between;padding:0 !important;\"><table class=\"checkout__totals\" style=\"width:60%;margin:0 !important;\"><thead class=\"checkout__totals-header\"><tr><th style=\"width:90px;padding:10px;\">Image</th><th style=\"padding:10px;\">Product</th><th style=\"padding:10px;\">Total</th></tr></thead><tbody class=\"checkout__totals-products\"><input type=\"hidden\" id=\"weight[]\" name=\"weight[]\" value=\"80\"><input type=\"hidden\" id=\"length[]\" name=\"length[]\"><input type=\"hidden\" id=\"width[]\" name=\"width[]\"><input type=\"hidden\" id=\"height[]\" name=\"height[]\"><tr><td><div class=\"p-1 rounded avatar-md\"><img src=\"https://app.fa-bt.com/storage/images/thumbnail/1PQr2V7wHq7XmEK3vAj2W3RlU5WEqxiBZFeS2O0n.jpg\" alt=\"Tilta Hydra Arm Mini Pro Set\" class=\"img-fluid d-block\"></div></td><td> Tilta Hydra Arm Mini Pro Set <p class=\"mb-0 text-muted\">AED 44,100 x 1</p></td><td style=\"padding-right:10px;\">44,100 AED</td></tr></tbody></table><table class=\"checkout__totals\" style=\"width:40%;margin:0 !important;background:#fff6ea;padding:20px !important;display:flex;flex-direction:column;\"><tbody class=\"checkout__totals-subtotals\"><tr><th colspan=\"2\" style=\"border-top:0;\">Subtotal</th><td style=\"border-top:0;\">44,100.00 AED</td></tr><tr><th colspan=\"2\" style=\"border-top:0;\">Shipping Fee (DHL)</th><td style=\"border-top:0;\">100.00 AED</td></tr><tr><th colspan=\"2\">VAT</th><td>2,205.00 AED</td></tr></tbody><tfoot class=\"checkout__totals-footer\" style=\"font-size:20px;\"><tr><th colspan=\"2\">Total</th><td>46,405.00 AED</td></tr></tfoot></table></div></div>", 1);
-var _hoisted_3 = [_hoisted_2];
 function render(_ctx, _cache) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, _hoisted_3);
+  return null;
 }
 
 /***/ }),
@@ -33938,7 +33950,6 @@ var app = (0,vue__WEBPACK_IMPORTED_MODULE_0__.createApp)({
     },
     showSteptwo: function showSteptwo() {
       this.ShowFormOne = false, this.ShowFormTwo = true, this.ShowFormThree = false;
-      console.log('checking');
     },
     showStepthree: function showStepthree() {
       this.ShowFormOne = false, this.ShowFormTwo = false, this.ShowFormThree = true;
@@ -48952,7 +48963,7 @@ __webpack_require__.r(__webpack_exports__);
 
 var ___CSS_LOADER_EXPORT___ = _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_0___default()(function(i){return i[1]});
 // Module
-___CSS_LOADER_EXPORT___.push([module.id, "\n.ship-double-main {\r\n  background-color: #e7e7e7;\r\n  display: flex;\r\n  justify-content: space-around;\r\n  align-items: center;\r\n  flex-wrap: wrap;\n}\n.ship-main-part {\r\n  width: 356px;\n}\n.ship-main-div {\r\n  width: 80%;\r\n  height: auto;\r\n  /* background-color: aqua; */\n}\n.ship-detail-div {\r\n  width: 100%;\r\n  height: 100%;\r\n  /* background-color: aquamarine; */\n}\n.ship-detail-head-text {\r\n  text-align: center;\r\n  width: auto;\r\n  margin-left: 10px;\r\n  color: #f2aa4cff;\r\n  margin-bottom: 0px;\r\n  /* background-color: bisque; */\r\n  font-size: 35px;\r\n  font-family: \"Segoe UI\";\n}\n.ship-detail-head {\r\n  display: flex;\r\n  align-items: center;\r\n  background-color: #e7e7e7;\n}\n.ship-detail-add-div {\r\n  background-color: white;\r\n\r\n  border: 1px solid rgb(172, 172, 172);\r\n  padding: 30px;\r\n  width: 100%;\r\n  height: 150px;\r\n  /* height: 100px; */\r\n  /* background-color: rgb(243, 233, 233); */\n}\n.ship-name-head {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  margin-bottom: 10px;\n}\n.ship-name-text {\r\n  margin: 0;\n}\n.ship-change-button {\r\n  background-color: white;\r\n  border: none;\r\n  color: #f2aa4cff;\n}\n.ship-address {\r\n  margin: 0;\n}\n@media only screen and (max-width: 767px) {\n.ship-main-part {\r\n    width: 100%;\r\n    margin: 10px;\n}\n.icon-setting {\r\n    margin-left: 6px;\n}\n}\r\n", ""]);
+___CSS_LOADER_EXPORT___.push([module.id, "\n.ship-double-main {\r\n  background-color: #e7e7e7;\r\n  display: flex;\r\n  justify-content: space-around;\r\n  align-items: center;\r\n  flex-wrap: wrap;\n}\n.ship-main-part {\r\n  width: 356px;\n}\n.ship-main-div {\r\n  width: 80%;\r\n  height: auto;\r\n  /* background-color: aqua; */\n}\n.ship-detail-div {\r\n  width: 100%;\r\n  height: 100%;\r\n  /* background-color: aquamarine; */\n}\n.ship-detail-head-text {\r\n    text-align: center;\r\n    width: auto;\r\n    margin-left: 10px;\r\n    color: #000000;\r\n    margin-bottom: 0px;\r\n    font-size: 35px;\r\n    font-family: \"Segoe UI\";\r\n    font-weight: 300;\n}\n.ship-detail-head {\r\n  display: flex;\r\n  align-items: center;\r\n  background-color: #e7e7e7;\n}\n.ship-detail-add-div {\r\n  background-color: white;\r\n\r\n  border: 1px solid rgb(172, 172, 172);\r\n  padding: 30px;\r\n  width: 100%;\r\n  height: 150px;\r\n  /* height: 100px; */\r\n  /* background-color: rgb(243, 233, 233); */\n}\n.ship-name-head {\r\n  display: flex;\r\n  justify-content: space-between;\r\n  margin-bottom: 10px;\n}\n.ship-name-text {\r\n  margin: 0;\n}\n.ship-change-button {\r\n  background-color: white;\r\n  border: none;\r\n  color: #f2aa4cff;\n}\n.ship-address {\r\n  margin: 0;\n}\n@media only screen and (max-width: 767px) {\n.ship-main-part {\r\n    width: 100%;\r\n    margin: 10px;\n}\n.icon-setting {\r\n    margin-left: 6px;\n}\n}\r\n", ""]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 

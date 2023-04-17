@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserCountry;
 use App\Http\Requests\Checkout\CheckoutRequest;
 use App\Mail\OrderPlaced;
 use App\Models\Order;
 use App\Models\OrderProduct;
 use App\Models\PaymentDetails;
-use Illuminate\Http\Request;
-use Gloudemans\Shoppingcart\Facades\Cart;
+use App\Models\UserAddress;
+use App\Models\UserCountry;
+use Carbon\Carbon;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutAuthorizationException;
 use Checkout\CheckoutSdk;
@@ -24,13 +24,12 @@ use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource;
 use Checkout\Payments\Sender\PaymentIndividualSender;
 use Checkout\Payments\ThreeDsRequest;
-use App\Models\Product;
 use Exception;
-use App\Models\UserAddress;
+use Gloudemans\Shoppingcart\Facades\Cart;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class CheckoutController extends Controller
 {
@@ -39,11 +38,11 @@ class CheckoutController extends Controller
 
         // dd(env('DHL_ACCOUNT_NUMBER'));
 
-        if(!Cart::content()->isEmpty()){
+        if (!Cart::content()->isEmpty()) {
             $collectioncountries = UserCountry::get();
-            $useraddress = UserAddress::where([['userid',Auth()->user()->id]])->get();
-            foreach(Cart::content() as $item){
-                if($item->model->length > 0 && $item->model->width > 0 && $item->model->height > 0 && $item->model->weight > 0){
+            $useraddress = UserAddress::where([['userid', Auth()->user()->id]])->get();
+            foreach (Cart::content() as $item) {
+                if ($item->model->length > 0 && $item->model->width > 0 && $item->model->height > 0 && $item->model->weight > 0) {
                     $ip = $request->ip();
                     $data = \Location::get($ip);
                     $today = new Carbon();
@@ -52,8 +51,8 @@ class CheckoutController extends Controller
 
                 }
             }
-        return view('checkout.checkout')->with(compact('collectioncountries','useraddress'));
-        }else{
+            return view('checkout.checkout')->with(compact('collectioncountries', 'useraddress'));
+        } else {
             return redirect()->route('home');
         }
 
@@ -66,6 +65,7 @@ class CheckoutController extends Controller
 
     public function checkoutpayment(CheckoutRequest $request)
     {
+        dd(Session::get('newTotal'));
         $api = CheckoutSdk::builder()->staticKeys()->environment(Environment::production())->secretKey(env("SECRET_KEY"))->build();
         $api = CheckoutSdk::builder()->oAuth()->clientCredentials(env("CLIENT_ID"), env("CLIENT_SECRET"))->scopes([OAuthScope::$Gateway])->environment(Environment::production())->build();
 
@@ -74,7 +74,7 @@ class CheckoutController extends Controller
         $phone->number = $request->phone;
 
         $address = new Address();
-        $address->address_line1 = $request->companyname.' '.$request->streetaddress;
+        $address->address_line1 = $request->companyname . ' ' . $request->streetaddress;
         $address->address_line2 = $request->apartmentno;
         $address->city = $request->city;
         $address->state = $request->state;
@@ -86,7 +86,7 @@ class CheckoutController extends Controller
 
         $customerRequest = new CustomerRequest();
         $customerRequest->email = $request->email;
-        $customerRequest->name = $request->firstname.' '.$request->lastname;
+        $customerRequest->name = $request->firstname . ' ' . $request->lastname;
 
         $paymentIndividualSender = new PaymentIndividualSender();
         $paymentIndividualSender->fist_name = $request->firstname;
@@ -99,15 +99,16 @@ class CheckoutController extends Controller
         $checkoutrequestpayment = new PaymentRequest();
         $checkoutrequestpayment->source = $requestTokenSource;
         $checkoutrequestpayment->capture = true;
-        // $checkoutrequestpayment->amount = (Cart::total())*100;
-        $checkoutrequestpayment->amount = 10;
+
+        //$checkoutrequestpayment->amount = (Cart::total())*100;
+        $checkoutrequestpayment->amount = Session::get('newTotal');
         $checkoutrequestpayment->currency = Currency::$AED;
         $checkoutrequestpayment->customer = $customerRequest;
         $checkoutrequestpayment->three_ds = $threeds;
         $checkoutrequestpayment->sender = $paymentIndividualSender;
         $checkoutrequestpayment->processing_channel_id = env("PROCESSING_CHANNEL_ID");
-        $checkoutrequestpayment->success_url = route('checkout.success',true);
-        $checkoutrequestpayment->failure_url = route('checkout.failure',true);
+        $checkoutrequestpayment->success_url = route('checkout.success', true);
+        $checkoutrequestpayment->failure_url = route('checkout.failure', true);
 
         try {
 
@@ -116,13 +117,11 @@ class CheckoutController extends Controller
             Session::put('order_code', $order->order_code);
             Cart::instance('default')->destroy();
             return redirect($response['_links']['redirect']['href']);
-        }
-        catch (CheckoutApiException $e)
-        {
+        } catch (CheckoutApiException $e) {
             $error_details = $e->error_details;
             $http_status_code = isset($e->http_metadata) ? $e->http_metadata->getStatusCode() : null;
             $order = $this->addToOrdersTables($request, null);
-            return view('pages.failure')->with(compact('error_details','http_status_code'));
+            return view('pages.failure')->with(compact('error_details', 'http_status_code'));
         } catch (CheckoutAuthorizationException $e) {
             return view('pages.failure');
         }
@@ -138,14 +137,12 @@ class CheckoutController extends Controller
             $response = $api->getPaymentsClient()->getPaymentDetails($checkoutpaymentresponse);
 
             $ordercode = Session::get('order_code');
-            $order = Order::where([['order_code',$ordercode],['payment_status','Un Paid']])->first();
+            $order = Order::where([['order_code', $ordercode], ['payment_status', 'Un Paid']])->first();
 
-
-
-            if(!$order){
+            if (!$order) {
                 return redirect()->route('home');
-            }else{
-                $orderproduct = OrderProduct::where([['order_id',$order->id]])->get();
+            } else {
+                $orderproduct = OrderProduct::where([['order_id', $order->id]])->get();
 
                 $order->payment_status = $response['status'];
                 $order->save();
@@ -156,37 +153,37 @@ class CheckoutController extends Controller
                 $paymentdetails->update();
 
                 $collectionproducts = DB::table('products')
-                            ->join('order_products', 'order_products.product_id', '=','products.id')
-                            ->join('orders', 'orders.id', '=','order_products.order_id')
-                            ->join('payment_details','payment_details.order_id','=','orders.id')
-                            ->select('order_products.*','products.*','order_products.quantity as ordered_quantity')
-                            ->Where('order_products.order_id','=',"$order->id")
-                            ->groupBy('products.mfr')->get();
+                    ->join('order_products', 'order_products.product_id', '=', 'products.id')
+                    ->join('orders', 'orders.id', '=', 'order_products.order_id')
+                    ->join('payment_details', 'payment_details.order_id', '=', 'orders.id')
+                    ->select('order_products.*', 'products.*', 'order_products.quantity as ordered_quantity')
+                    ->Where('order_products.order_id', '=', "$order->id")
+                    ->groupBy('products.mfr')->get();
 
-                Mail::send(new OrderPlaced($order,$collectionproducts));
+                Mail::send(new OrderPlaced($order, $collectionproducts));
             }
 
-            return view('checkout.thankyou')->with(compact('order','response','orderproduct','collectionproducts'));
+            return view('checkout.thankyou')->with(compact('order', 'response', 'orderproduct', 'collectionproducts'));
 
         } catch (CheckoutApiException $e) {
             // API error
             $error_details = $e->error_details;
             $http_status_code = isset($e->http_metadata) ? $e->http_metadata->getStatusCode() : null;
-            return view("pages.failure")->with(compact('error_details','http_status_code'));
+            return view("pages.failure")->with(compact('error_details', 'http_status_code'));
         } catch (CheckoutAuthorizationException $e) {
             return view('pages.failure')->with(compact('e'));
         }
     }
 
-    public function addToOrdersTables($request,$error)
+    public function addToOrdersTables($request, $error)
     {
-        try{
+        try {
             $neworder = new Order;
             $neworder->user_id = auth()->user() ? auth()->user()->id : null;
             $neworder->order_code = $this->generateUniqueCode();
             $neworder->billing_email = $request->email;
-            $neworder->billing_name = $request->firstname .' '. $request->lastname;
-            $neworder->billing_address = $request->apartmentno .' '. $request->streetaddress;
+            $neworder->billing_name = $request->firstname . ' ' . $request->lastname;
+            $neworder->billing_address = $request->apartmentno . ' ' . $request->streetaddress;
             $neworder->billing_city = $request->city;
             $neworder->billing_provice = $request->state;
             $neworder->billing_postalcode = $request->postalcode;
@@ -202,7 +199,7 @@ class CheckoutController extends Controller
 
             $neworder->save();
 
-            foreach(Cart::content() as $item){
+            foreach (Cart::content() as $item) {
 
                 $neworderproduct = new OrderProduct();
                 $neworderproduct->order_id = $neworder->id;
@@ -214,8 +211,7 @@ class CheckoutController extends Controller
             }
 
             return $neworder;
-        }catch(Exception $exe){
-
+        } catch (Exception $exe) {
 
         }
     }
@@ -227,11 +223,11 @@ class CheckoutController extends Controller
         try {
             $response = $api->getPaymentsClient()->getPaymentDetails($checkoutpaymentresponse);
             $ordercode = Session::get('order_code');
-            $order = Order::where([['order_code',$ordercode],['payment_status','Un Paid']])->first();
-            if(!$order){
+            $order = Order::where([['order_code', $ordercode], ['payment_status', 'Un Paid']])->first();
+            if (!$order) {
                 return redirect()->route('home');
-            }else{
-                $orderproduct = OrderProduct::where([['order_id',$order->id]])->get();
+            } else {
+                $orderproduct = OrderProduct::where([['order_id', $order->id]])->get();
                 $order->payment_status = $response['status'];
                 $order->save();
                 $paymentdetails = new PaymentDetails();
@@ -240,8 +236,8 @@ class CheckoutController extends Controller
                 $paymentdetails->order_id = $order->id;
                 $paymentdetails->save();
             }
-            return view('pages.failure')->with(compact('order','response','orderproduct'));
-        }catch(CheckoutApiException $e){
+            return view('pages.failure')->with(compact('order', 'response', 'orderproduct'));
+        } catch (CheckoutApiException $e) {
             $error_details = $e->error_details;
             $http_status_code = isset($e->http_metadata) ? $e->http_metadata->getStatusCode() : null;
         }
@@ -256,7 +252,7 @@ class CheckoutController extends Controller
         while (strlen($code) < $codeLength) {
             $position = rand(0, $charactersNumber - 1);
             $character = $characters[$position];
-            $code = $code.$character;
+            $code = $code . $character;
         }
         if (Order::where('order_code', $code)->exists()) {
             $this->generateUniqueCode();
@@ -264,8 +260,3 @@ class CheckoutController extends Controller
         return $code;
     }
 }
-
-
-
-
-

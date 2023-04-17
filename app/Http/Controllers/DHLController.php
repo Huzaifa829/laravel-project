@@ -2,45 +2,98 @@
 
 namespace App\Http\Controllers;
 
-use Algolia\AlgoliaSearch\Http\GuzzleHttpClient;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Request;
-use GuzzleHttp\Client;
 use Carbon\Carbon;
 use Exception;
+use Gloudemans\Shoppingcart\Facades\Cart;
+use GuzzleHttp\Client;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class DHLController extends Controller
 {
     public function getSingleProductRate(Request $request)
     {
 
-        // dd(env('DHL_ACCOUNT_NUMBER'));
+        $rowIds = array();
 
-        if($request->length > 0 && $request->width > 0 && $request->height > 0 && $request->weight){
+        foreach (Cart::content() as $item) {
 
-            $ip = $request->ip();
-            $data = \Location::get($ip);
-            $today = new Carbon();
-            
-
-            if($today->dayOfWeek == Carbon::SATURDAY){
-                $shippingDate = date('Y-m-d', strtotime(' +2 day'));
-            }else{
-                $shippingDate = date('Y-m-d', strtotime(' +1 day'));
-            }
-
-            $response = Http::withHeaders([
-                'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw=='
-            ])->get('https://express.api.dhl.com/mydhlapi/test/rates?accountNumber='.env('DHL_ACCOUNT_NUMBER').'&originCountryCode='.env('COUNTRY_CODE').'&originCityName='.env('CITY_NAME').'&destinationCountryCode='.env('DESTINATION_COUNTRY_CODE').'&destinationCityName='.env('DESTINATION_CITY_NAME').'&weight='.$request->weight.'&length='.$request->length.'&width='.$request->width.'&height='.$request->height.'&plannedShippingDate='.$shippingDate.'&isCustomsDeclarable=false&unitOfMeasurement=metric');
-
-            return $response->json();
-
-        }else{
-
-            
+            $rowIds[] = $item->rowId;
 
         }
 
+        $session = session()->get('cart');
+
+        // return response()->json($session);
+
+        $jsonData = array();
+
+        foreach ($rowIds as $value) {
+            $jsonData[] = $session['default'][$value]->model;
+        }
+        //  end
+
+        // dd(env('DHL_ACCOUNT_NUMBER'));
+        // $i = 0;
+        foreach ($jsonData as $data) {
+            // dump($data->weight);
+            $mz_data = $data->toArray();
+            // dd($mz_data['weight']);
+            if (
+                $data->length > 0 &&
+                $data->width > 0 &&
+                $data->height > 0
+            ) {
+
+                $ip = $request->ip();
+                $data = \Location::get($ip);
+                $today = new Carbon();
+
+                if ($today->dayOfWeek == Carbon::SATURDAY) {
+                    $shippingDate = date('Y-m-d', strtotime(' +2 day'));
+                } else {
+                    $shippingDate = date('Y-m-d', strtotime(' +1 day'));
+                }
+
+                // return 'https://express.api.dhl.com/mydhlapi/test/rates?accountNumber='
+                // . env('DHL_ACCOUNT_NUMBER')
+                // . '&originCountryCode=' . env('COUNTRY_CODE')
+                // . '&originCityName=' . env('CITY_NAME')
+                // . '&destinationCountryCode=' . env('DESTINATION_COUNTRY_CODE')
+                // . '&destinationCityName=' . env('DESTINATION_CITY_NAME')
+                // . '&weight=' . '2' //$data->weight
+                // . '&length=' . '2' //$data->length
+                // . '&width=' . '2' //$data->width
+                // . '&height=' . '2' //$data->height
+                // . '&plannedShippingDate=' . $shippingDate
+                //     . '&isCustomsDeclarable=false&unitOfMeasurement=metric';
+
+                // dd('https://express.api.dhl.com/mydhlapi/test/rates?accountNumber=' . env('DHL_ACCOUNT_NUMBER') . '&originCountryCode=' . env('COUNTRY_CODE') . '&originCityName=' . env('CITY_NAME') . '&destinationCountryCode=' . env('DESTINATION_COUNTRY_CODE') . '&destinationCityName=' . env('DESTINATION_CITY_NAME') . '&weight=' . 1 . '&length=' . 1 . '&width=' . 1 . '&height=' . 1 . '&plannedShippingDate=' . $shippingDate . '&isCustomsDeclarable=false&unitOfMeasurement=metric');
+
+                $my_api = 'https://express.api.dhl.com/mydhlapi/test/rates?accountNumber='
+                . env('DHL_ACCOUNT_NUMBER')
+                . '&originCountryCode=' . env('COUNTRY_CODE')
+                . '&originCityName=' . env('CITY_NAME')
+                . '&destinationCountryCode=' . env('DESTINATION_COUNTRY_CODE')
+                . '&destinationCityName=' . env('DESTINATION_CITY_NAME')
+                . '&weight=' . (float) $mz_data['weight']
+                . '&length=' . (float) $mz_data['length']
+                . '&width=' . (float) $mz_data['width']
+                . '&height=' . (float) $mz_data['height']
+                    . '&plannedShippingDate=' . $shippingDate
+                    . '&isCustomsDeclarable=false&unitOfMeasurement=metric';
+
+                $response = Http::withHeaders([
+                    'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw==',
+                ])->get($my_api);
+
+                return $response;
+
+            } else {
+                dd('error');
+            }
+        }
+        // dd($i);
     }
 
     public function getMultiProductRate(Request $request)
@@ -48,53 +101,83 @@ class DHLController extends Controller
 
         $today = new Carbon();
 
-        if($today->dayOfWeek == Carbon::SATURDAY){
+        if ($today->dayOfWeek == Carbon::SATURDAY) {
             $shippingDate = date('Y-m-d H:i:s', strtotime(' +2 day'));
             $formattedshippingDate = \Carbon\Carbon::parse($shippingDate)->isoFormat('YYYY-MM-DD[T]HH:mm:ss[Z]ZZ');
 
-        }else{
+        } else {
             $shippingDate = date('Y-m-d H:i:s', strtotime(' +1 day'));
             $formattedshippingDate = \Carbon\Carbon::parse($shippingDate)->isoFormat('YYYY-MM-DD[T]HH:mm:ss[Z]ZZ');
         }
 
+        $rowIds = array();
 
-        $array = [
-            [
-                "weight"=> 10,
+        foreach (Cart::content() as $item) {
+
+            $rowIds[] = $item->rowId;
+        }
+
+        $session = session()->get('cart');
+
+        $jsonData = array();
+
+        foreach ($rowIds as $value) {
+            $jsonData[] = $session['default'][$value]->model;
+        }
+        // dd($jsonData);
+        $array = [];
+
+        foreach ($jsonData as $data) {
+
+            $currentData = [
+                "weight" => $data->weight,
                 "dimensions" => [
-                    "length"=> 10,
-                    "width"=> 20,
-                    "height"=> 30
-                ]
-            ],
-        ];
+                    "length" => $data->length,
+                    "width" => $data->width,
+                    "height" => $data->height,
+                ],
+            ];
+            array_push($array, $currentData);
 
+            // $array = [
+            //     [
+            //         "weight" => 10,
+            //         "dimensions" => [
+            //             "length" => 10,
+            //             "width" => 20,
+            //             "height" => 30,
+            //         ],
+            //     ],
+            // ];
+        }
+
+        // dd($array);
         $headers = [
             'content-type' => 'application/json',
-            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw=='
+            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw==',
         ];
 
         $client = new Client([
-            'headers' => $headers
+            'headers' => $headers,
         ]);
 
         $body = '{
             "customerDetails": {
                 "shipperDetails": {
-                    "postalCode": "'.env('POSTAL_CODE').'",
-                    "cityName": "'.env('CITY_NAME').'",
-                    "countryCode": "'.env('COUNTRY_CODE').'"
+                    "postalCode": "' . env('POSTAL_CODE') . '",
+                    "cityName": "' . env('CITY_NAME') . '",
+                    "countryCode": "' . env('COUNTRY_CODE') . '"
                 },
                 "receiverDetails": {
-                    "postalCode": "'.$request->postalcode.'",
-                    "cityName": "'.$request->cityname.'",
-                    "countryCode": "'.$request->countrycode.'"
+                    "postalCode": "' . $request->postalcode . '",
+                    "cityName": "' . $request->cityname . '",
+                    "countryCode": "' . $request->countrycode . '"
                 }
             },
             "accounts": [
                 {
                     "typeCode": "shipper",
-                    "number": "'.env('DHL_ACCOUNT_NUMBER').'"
+                    "number": "' . env('DHL_ACCOUNT_NUMBER') . '"
                 }
             ],
             "productsAndServices": [
@@ -102,8 +185,8 @@ class DHLController extends Controller
                     "productCode": "P"
                 }
             ],
-            "payerCountryCode": "'.$request->postalcode.'",
-            "plannedShippingDateAndTime": "'.$formattedshippingDate.'",
+            "payerCountryCode": "' . $request->postalcode . '",
+            "plannedShippingDateAndTime": "' . $formattedshippingDate . '",
             "unitOfMeasurement": "metric",
             "isCustomsDeclarable": true,
             "monetaryAmount": [
@@ -126,21 +209,20 @@ class DHLController extends Controller
             "returnStandardProductsOnly": false,
             "nextBusinessDay": true,
             "productTypeCode": "all",
-            "packages": '.json_encode($array).'
+            "packages": ' . json_encode($array) . '
         }';
 
-        try{
-        $res = $client->request('POST','https://express.api.dhl.com/mydhlapi/test/rates',[
-            'body' => $body
-        ]);
+        try {
+            $res = $client->request('POST', 'https://express.api.dhl.com/mydhlapi/test/rates', [
+                'body' => $body,
+            ]);
 
-        $response = $res->getBody()->getContents();
-        dd($response);
-        return $response;
-        }catch(Exception $exe){
+            $response = $res->getBody()->getContents();
+
+            return $response;
+        } catch (Exception $exe) {
             dd($exe);
         }
-
 
     }
 
@@ -149,62 +231,62 @@ class DHLController extends Controller
 
         $today = new Carbon();
 
-        if($today->dayOfWeek == Carbon::SATURDAY){
+        if ($today->dayOfWeek == Carbon::SATURDAY) {
             $shippingDate = date('Y-m-d H:i:s', strtotime(' +2 day'));
             $formattedshippingDate = \Carbon\Carbon::parse($shippingDate)->isoFormat('YYYY-MM-DD[T]HH:mm:ss[Z]ZZ');
 
-        }else{
+        } else {
             $shippingDate = date('Y-m-d H:i:s', strtotime(' +1 day'));
             $formattedshippingDate = \Carbon\Carbon::parse($shippingDate)->isoFormat('YYYY-MM-DD[T]HH:mm:ss[Z]ZZ');
         }
 
         $headers = [
             'content-type' => 'application/json',
-            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw=='
+            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw==',
         ];
 
         $client = new Client([
-            'headers' => $headers
+            'headers' => $headers,
         ]);
 
         $body = '{
-            "plannedShippingDateAndTime":"'.$formattedshippingDate.'",
+            "plannedShippingDateAndTime":"' . $formattedshippingDate . '",
                 "pickup":{
                     "isRequested":false,
                     "pickupDetails":{
                         "postalAddress":{
-                            "postalCode": "'.env('POSTAL_CODE').'",
-                            "cityName": "'.env('CITY_NAME').'",
-                            "countryCode": "'.env('COUNTRY_CODE').'",
-                            "addressLine1": "'.env('OFFICE_ADDRESS').'"
+                            "postalCode": "' . env('POSTAL_CODE') . '",
+                            "cityName": "' . env('CITY_NAME') . '",
+                            "countryCode": "' . env('COUNTRY_CODE') . '",
+                            "addressLine1": "' . env('OFFICE_ADDRESS') . '"
                         },
                         "contactInformation":{
-                            "email":"'.env('OFFICE_EMAIL').'",
-                            "phone":"'.env('OFFICE_PHONE').'",
-                            "companyName":"'.env('COMPANY_NAME').'",
-                            "fullName":"'.env('FULL_NAME').'"
+                            "email":"' . env('OFFICE_EMAIL') . '",
+                            "phone":"' . env('OFFICE_PHONE') . '",
+                            "companyName":"' . env('COMPANY_NAME') . '",
+                            "fullName":"' . env('FULL_NAME') . '"
                         }
                     },
                     "pickupRequestorDetails":{
                         "postalAddress":{
-                            "postalCode":"'.$request->postalcode.'",
-                            "cityName":"'.$request->city.'",
-                            "countryCode":"'.$request->countrycode.'",
-                            "addressLine1":"'.$request->address.'"
+                            "postalCode":"' . $request->postalcode . '",
+                            "cityName":"' . $request->city . '",
+                            "countryCode":"' . $request->countrycode . '",
+                            "addressLine1":"' . $request->address . '"
                         },
                         "contactInformation":{
-                            "email":"'.$request->email.'",
-                            "phone":"'.$request->phone.'",
-                            "companyName":"'.$request->companyname.'",
-                            "fullName":"'.$request->firstname." ".$request->lastname.'"
+                            "email":"' . $request->email . '",
+                            "phone":"' . $request->phone . '",
+                            "companyName":"' . $request->companyname . '",
+                            "fullName":"' . $request->firstname . " " . $request->lastname . '"
                         }
                     }
                 },
-                "productCode":"'.$request->productcode.'",
+                "productCode":"' . $request->productcode . '",
                 "accounts":[
                     {
                         "typeCode":"shipper",
-                        "number":'.env('DHL_ACCOUNT_NUMBER').'
+                        "number":' . env('DHL_ACCOUNT_NUMBER') . '
                     }
                 ],
                 "valueAddedServices":[
@@ -217,128 +299,128 @@ class DHLController extends Controller
                 ],
                 "customerReferences":[
                     {
-                        "value":"'.$request->firstname." ".$request->lastname.'",
+                        "value":"' . $request->firstname . " " . $request->lastname . '",
                         "typeCode":"CU"
                     }
                 ],
                 "identifiers":[
                     {
                         "typeCode":"shipmentId",
-                        "value":"'.$request->ordercode.'"
+                        "value":"' . $request->ordercode . '"
                     }
                 ],
                 "customerDetails":{
                     "shipperDetails":{
                         "postalAddress":{
-                            "postalCode":"'.env('POSTAL_CODE').'",
-                            "cityName":"'.env('CITY_NAME').'",
-                            "countryCode":"'.env('COUNTRY_CODE').'",
-                            "addressLine1":"'.env('OFFICE_ADDRESS').'",
+                            "postalCode":"' . env('POSTAL_CODE') . '",
+                            "cityName":"' . env('CITY_NAME') . '",
+                            "countryCode":"' . env('COUNTRY_CODE') . '",
+                            "addressLine1":"' . env('OFFICE_ADDRESS') . '",
                         },
                         "contactInformation":{
-                            "email":"'.env('OFFICE_EMAIL').'",
-                            "phone":"'.env('OFFICE_PHONE').'",
-                            "companyName":"'.env('COMPANY_NAME').'",
-                            "fullName":"'.env('FULL_NAME').'"
+                            "email":"' . env('OFFICE_EMAIL') . '",
+                            "phone":"' . env('OFFICE_PHONE') . '",
+                            "companyName":"' . env('COMPANY_NAME') . '",
+                            "fullName":"' . env('FULL_NAME') . '"
                         }
                     },
                     "receiverDetails":{
                         "postalAddress":{
-                            "postalCode":"'.$request->postalcode.'",
-                            "cityName":"'.$request->city.'",
-                            "countryCode":"'.$request->countrycode.'",
-                            "addressLine1":"'.$request->address.'",
+                            "postalCode":"' . $request->postalcode . '",
+                            "cityName":"' . $request->city . '",
+                            "countryCode":"' . $request->countrycode . '",
+                            "addressLine1":"' . $request->address . '",
                         },
                         "contactInformation":{
-                            "email":"'.$request->email.'",
-                            "phone":"'.$request->phone.'",
-                            "companyName":"'.$request->companyname.'",
-                            "fullName":"'.$request->firstname."".$request->lastname.'"
+                            "email":"' . $request->email . '",
+                            "phone":"' . $request->phone . '",
+                            "companyName":"' . $request->companyname . '",
+                            "fullName":"' . $request->firstname . "" . $request->lastname . '"
                         }
                     },
                     "buyerDetails":{
                         "postalAddress":{
-                            "postalCode":"'.$request->postalcode.'",
-                            "cityName":"'.$request->city.'",
-                            "countryCode":"'.$request->countrycode.'",
-                            "addressLine1":"'.$request->address.'"
+                            "postalCode":"' . $request->postalcode . '",
+                            "cityName":"' . $request->city . '",
+                            "countryCode":"' . $request->countrycode . '",
+                            "addressLine1":"' . $request->address . '"
                         },
                         "contactInformation":{
-                            "email":"'.$request->email.'",
-                            "phone":"'.$request->phone.'",
-                            "companyName":"'.$request->companyname.'",
-                            "fullName":"'.$request->firstname."".$request->lastname.'"
+                            "email":"' . $request->email . '",
+                            "phone":"' . $request->phone . '",
+                            "companyName":"' . $request->companyname . '",
+                            "fullName":"' . $request->firstname . "" . $request->lastname . '"
                         }
                     },
 
                     "importerDetails":{
                         "postalAddress":{
-                            "postalCode":"'.$request->postalcode.'",
-                            "cityName":"'.$request->city.'",
-                            "countryCode":"'.$request->countrycode.'",
-                            "addressLine1":"'.$request->address.'"
+                            "postalCode":"' . $request->postalcode . '",
+                            "cityName":"' . $request->city . '",
+                            "countryCode":"' . $request->countrycode . '",
+                            "addressLine1":"' . $request->address . '"
                         },
                         "contactInformation":{
-                            "email":"'.$request->email.'",
-                            "phone":"'.$request->phone.'",
-                            "companyName":"'.$request->companyname.'",
-                            "fullName":"'.$request->firstname."".$request->lastname.'"
+                            "email":"' . $request->email . '",
+                            "phone":"' . $request->phone . '",
+                            "companyName":"' . $request->companyname . '",
+                            "fullName":"' . $request->firstname . "" . $request->lastname . '"
                         }
                     },
                     "exporterDetails":{
                         "postalAddress":{
-                            "postalCode":"'.env('POSTAL_CODE').'",
-                            "cityName":"'.env('CITY_NAME').'",
-                            "countryCode":"'.env('COUNTRY_CODE').'",
-                            "addressLine1":"'.env('OFFICE_ADDRESS').'"
+                            "postalCode":"' . env('POSTAL_CODE') . '",
+                            "cityName":"' . env('CITY_NAME') . '",
+                            "countryCode":"' . env('COUNTRY_CODE') . '",
+                            "addressLine1":"' . env('OFFICE_ADDRESS') . '"
                         },
                         "contactInformation":{
-                            "email":"'.env('OFFICE_EMAIL').'",
-                            "phone":"'.env('OFFICE_PHONE').'",
-                            "companyName":"'.env('COMPANY_NAME').'",
-                            "fullName":"'.env('FULL_NAME').'"
+                            "email":"' . env('OFFICE_EMAIL') . '",
+                            "phone":"' . env('OFFICE_PHONE') . '",
+                            "companyName":"' . env('COMPANY_NAME') . '",
+                            "fullName":"' . env('FULL_NAME') . '"
                         }
                     },
                     "sellerDetails":{
                         "postalAddress":{
-                            "postalCode":"'.env('POSTAL_CODE').'",
-                            "cityName":"'.env('CITY_NAME').'",
-                            "countryCode":"'.env('COUNTRY_CODE').'",
-                            "addressLine1":"'.env('OFFICE_ADDRESS').'"
+                            "postalCode":"' . env('POSTAL_CODE') . '",
+                            "cityName":"' . env('CITY_NAME') . '",
+                            "countryCode":"' . env('COUNTRY_CODE') . '",
+                            "addressLine1":"' . env('OFFICE_ADDRESS') . '"
                         },
                         "contactInformation":{
-                            "email":"'.env('OFFICE_EMAIL').'",
-                            "phone":"'.env('OFFICE_PHONE').'",
-                            "companyName":"'.env('COMPANY_NAME').'",
-                            "fullName":"'.env('FULL_NAME').'"
+                            "email":"' . env('OFFICE_EMAIL') . '",
+                            "phone":"' . env('OFFICE_PHONE') . '",
+                            "companyName":"' . env('COMPANY_NAME') . '",
+                            "fullName":"' . env('FULL_NAME') . '"
                         }
                     },
                     "payerDetails":{
                         "postalAddress":{
-                            "postalCode":"'.$request->postalcode.'",
-                            "cityName":"'.$request->city.'",
-                            "countryCode":"'.$request->countrycode.'",
-                            "addressLine1":"'.$request->address.'"
+                            "postalCode":"' . $request->postalcode . '",
+                            "cityName":"' . $request->city . '",
+                            "countryCode":"' . $request->countrycode . '",
+                            "addressLine1":"' . $request->address . '"
                         },
                         "contactInformation":{
-                            "email":"'.$request->email.'",
-                            "phone":"'.$request->phone.'",
-                            "companyName":"'.$request->companyname.'",
-                            "fullName":"'.$request->firstname."".$request->lastname.'"
+                            "email":"' . $request->email . '",
+                            "phone":"' . $request->phone . '",
+                            "companyName":"' . $request->companyname . '",
+                            "fullName":"' . $request->firstname . "" . $request->lastname . '"
                         }
                     },
                     "ultimateConsigneeDetails":{
                         "postalAddress":{
-                            "postalCode":"'.$request->postalcode.'",
-                            "cityName":"'.$request->city.'",
-                            "countryCode":"'.$request->countrycode.'",
-                            "addressLine1":"'.$request->address.'"
+                            "postalCode":"' . $request->postalcode . '",
+                            "cityName":"' . $request->city . '",
+                            "countryCode":"' . $request->countrycode . '",
+                            "addressLine1":"' . $request->address . '"
                         },
                         "contactInformation":{
-                            "email":"'.$request->email.'",
-                            "phone":"'.$request->phone.'",
-                            "companyName":"'.$request->companyname.'",
-                            "fullName":"'.$request->firstname."".$request->lastname.'"
+                            "email":"' . $request->email . '",
+                            "phone":"' . $request->phone . '",
+                            "companyName":"' . $request->companyname . '",
+                            "fullName":"' . $request->firstname . "" . $request->lastname . '"
                         }
                 },
                 "content":{
@@ -426,8 +508,8 @@ class DHLController extends Controller
                             }
                         ],
                         "invoice":{
-                            "number":"'.$request->ordercode.'",
-                            "date":"'.$request->created_at.'",
+                            "number":"' . $request->ordercode . '",
+                            "date":"' . $request->created_at . '",
                             "signatureName":"Brewer",
                             "signatureTitle":"Mr.",
                             "signatureImage":"Base64 encoded image",
@@ -559,15 +641,15 @@ class DHLController extends Controller
                 }
             }';
 
-        try{
-            $res = $client->request('POST','https://express.api.dhl.com/mydhlapi/test/shipments',[
-                'body' => $body
+        try {
+            $res = $client->request('POST', 'https://express.api.dhl.com/mydhlapi/test/shipments', [
+                'body' => $body,
             ]);
 
             $response = $res->getBody()->getContents();
             return $response;
 
-        }catch(Exception $exce){
+        } catch (Exception $exce) {
             dd($exce);
         }
     }
@@ -576,19 +658,19 @@ class DHLController extends Controller
     {
 
         $response = Http::withHeaders([
-            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw=='
-        ])->get('https://express.api.dhl.com/mydhlapi/test/shipments/'.$request->trackingid.'/tracking');
+            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw==',
+        ])->get('https://express.api.dhl.com/mydhlapi/test/shipments/' . $request->trackingid . '/tracking');
 
         dd($response->body());
         return $response->body();
 
     }
 
-    public function trackMultipleShipment(Request $request)
+    public function trackMultipl0eShipment(Request $request)
     {
 
         $response = Http::withHeaders([
-            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw=='
+            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw==',
         ])->get('https://express.api.dhl.com/mydhlapi/test/tracking');
 
         dd($response->body());
@@ -600,11 +682,76 @@ class DHLController extends Controller
     {
 
         $response = Http::withHeaders([
-            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw=='
+            'Authorization' => 'Basic YXBZMnpCOHpBM3pCOHc6WEA3ekskM2ZDIzhtRiEyYw==',
         ])->get('https://express.api.dhl.com/mydhlapi/test/address-validate');
 
         dd($response->body());
         return $response->body();
 
     }
+
+    public function getcartdetail(Request $request)
+    {
+        $rowIds = array();
+
+        foreach (Cart::content() as $item) {
+
+            $rowIds[] = $item->rowId;
+        }
+
+        $session = session()->get('cart');
+
+        $jsonData = array();
+
+        foreach ($rowIds as $value) {
+            $jsonData[] = $session['default'][$value]->model;
+        }
+
+        // dd($jsonData);
+        // return response()->json($jsonData);
+
+        // return response()->json($session['default']);
+        // $jsonData = array();
+        // foreach ($rowIds as $key => $value) {
+        //     $jsonData[$key] = $session['default'][$value];
+        // }
+
+        // foreach($rowIds as $value){
+        //     return response()->json([
+        //         $session['default'][$value]
+        //     ]);
+        // }
+        // dd($session['default']);
+        //dd($rowIds);
+        // $data = Cart::instance('default')->content();
+        // $mz_check = session()->getId();
+        // dd($mz_check);
+        // dd($session['default']['9138225b7690f8ef89996e19f6db0de0']);
+        // dd($session['default'][$mz_check]->id);
+        // dd(json_encode($session)['default']);
+        //    return response()->json([
+
+        //     'data'=>$session,
+        //     'city'=>$request->city,
+        //     'country'=>$request->country,
+        // ]);
+    }
+    public function getshippingpirce(Request $request)
+    {
+
+        $a = Cart::instance('default')->total();
+        $b = $request->Price;
+        $c = floatval($a) + floatval($b);
+        $tmpAmount = explode(',', $a);
+        if (count($tmpAmount) > 1) {
+            $c = floatval($tmpAmount[0] . $tmpAmount[1]) + floatval($b);
+        } else {
+            $c = floatval($tmpAmount[0]) + floatval($b);
+
+        }
+        session()->put('newTotal', $c);
+
+        return $c;
+    }
+
 }

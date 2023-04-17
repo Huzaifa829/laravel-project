@@ -77,7 +77,6 @@ const app = createApp({
             this.ShowFormOne = false,
                 this.ShowFormTwo = true,
                 this.ShowFormThree = false
-                console.log('checking')
         },
     
         showStepthree() {

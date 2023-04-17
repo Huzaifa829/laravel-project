@@ -85,14 +85,14 @@ export default {
   /* background-color: aquamarine; */
 }
 .ship-detail-head-text {
-  text-align: center;
-  width: auto;
-  margin-left: 10px;
-  color: #f2aa4cff;
-  margin-bottom: 0px;
-  /* background-color: bisque; */
-  font-size: 35px;
-  font-family: "Segoe UI";
+    text-align: center;
+    width: auto;
+    margin-left: 10px;
+    color: #000000;
+    margin-bottom: 0px;
+    font-size: 35px;
+    font-family: "Segoe UI";
+    font-weight: 300;
 }
 .ship-detail-head {
   display: flex;
